@@ -7,7 +7,7 @@ import config from '../config';
 const EMAIL_HOST = process.env.EMAIL_HOST || 'smtp.godaddy.com';
 const EMAIL_PORT = parseInt(process.env.EMAIL_PORT || '587');
 const EMAIL_USER = process.env.EMAIL_USER || 'contacto@necesitomasreviews.com';
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || 'QWEasdZXC123';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'QWEasdZXC123'; // Cambiado de EMAIL_PASSWORD a EMAIL_PASS
 const EMAIL_SECURE = process.env.EMAIL_SECURE === 'true';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5300';
 
@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
   secure: EMAIL_SECURE, // true para 465, false para otros puertos
   auth: {
     user: EMAIL_USER,
-    pass: EMAIL_PASSWORD,
+    pass: EMAIL_PASS, // Cambiado de EMAIL_PASSWORD a EMAIL_PASS
   },
   tls: {
     // No fallar en certificados inválidos

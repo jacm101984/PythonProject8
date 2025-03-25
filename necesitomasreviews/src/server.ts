@@ -16,6 +16,19 @@ const jwt = require('jsonwebtoken');
 // Cargar variables de entorno antes de cualquier otra operación
 dotenv.config();
 
+// Verificar variables de entorno críticas
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === 'your-secret-key') {
+  console.error('⚠️ JWT_SECRET no configurado correctamente. Por favor configura esta variable en el archivo .env');
+  // En producción, podrías querer terminar el proceso aquí
+  // process.exit(1);
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET || SESSION_SECRET === 'your-secret-key') {
+  console.error('⚠️ SESSION_SECRET no configurado correctamente. Por favor configura esta variable en el archivo .env');
+}
+
 // Importar rutas
 let authRoutes;
 try {
@@ -89,7 +102,10 @@ const connectDB = async () => {
     // Usar MONGODB_URI como primera opción (como se define en él .env),
     // MONGO_URI como segunda opción, o una URL local por defecto
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/necesitomasreviews';
-    console.log(`Intentando conectar a MongoDB en: ${mongoUri}`);
+
+    // No mostrar la URI completa en los logs para evitar exponer credenciales
+    const redactedUri = mongoUri.replace(/:([^@]+)@/, ':*****@');
+    console.log(`Intentando conectar a MongoDB en: ${redactedUri}`);
 
     const conn = await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
@@ -123,9 +139,17 @@ if (!process.env.EMAIL_HOST) {
 
 // Security middleware
 app.use(helmet());
+
+// Configuración de CORS mejorada para permitir múltiples orígenes
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:5300', 'http://localhost:5301'];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? [process.env.CORS_ORIGIN] : ['http://localhost:5300', 'http://localhost:5301'],
-  credentials: true
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rate limiting
@@ -134,30 +158,48 @@ const limiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  message: { success: false, message: 'Demasiadas solicitudes, por favor intente más tarde' }
 });
-app.use(limiter);
+
+// Aplicar rate limiting a todas las rutas de la API
+app.use('/api/', limiter);
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' })); // Limitar tamaño de payload
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
-app.use(morgan('dev'));
 
-// Session configuration
+// Logging basado en el entorno
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Configuración segura de sesiones
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax'
   }
 }));
 
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Headers de seguridad
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -197,8 +239,8 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    // Verificar el token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    // Verificar el token usando la clave secreta del entorno
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex'));
 
     // Añadir la información del usuario decodificada a la solicitud
     req.user = decoded;
@@ -228,15 +270,15 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     // Generar token de verificación
-    const verificationToken = crypto.randomBytes(20).toString('hex');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     // Crear id temporal para el usuario
     const userId = 'user-' + Date.now();
 
-    // Generar JWT token
+    // Generar JWT token usando la clave secreta del entorno
     const token = jwt.sign(
       { id: userId },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex'),
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
@@ -288,9 +330,10 @@ app.post('/api/auth/login', async (req, res) => {
     // Simulación de login exitoso
     const userId = 'user-' + Date.now();
 
+    // Generar JWT token usando la clave secreta del entorno
     const token = jwt.sign(
       { id: userId },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex'),
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
@@ -362,7 +405,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
     }
 
     // Generar nuevo token de verificación
-    const verificationToken = crypto.randomBytes(20).toString('hex');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     // Intentar enviar correo de verificación
     try {
@@ -508,7 +551,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ Servidor ejecutándose en el puerto ${PORT}`);
   console.log(`🌐 URL de la API: http://localhost:${PORT}/api`);
   console.log(`🧪 Ruta de prueba de correo: http://localhost:${PORT}/api/test-email`);
@@ -519,15 +562,39 @@ app.listen(PORT, () => {
   }
 });
 
+// Cierre elegante del servidor
+const gracefulShutdown = () => {
+  console.log('Recibida señal de cierre...');
+  server.close(() => {
+    console.log('Servidor HTTP cerrado');
+    mongoose.connection.close(false, () => {
+      console.log('Conexión a MongoDB cerrada');
+      process.exit(0);
+    });
+  });
+
+  // Si el servidor no se cierra en 10 segundos, forzar salida
+  setTimeout(() => {
+    console.error('No se pudo cerrar elegantemente, forzando salida');
+    process.exit(1);
+  }, 10000);
+};
+
+// Capturar señales de cierre
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
 // Manejo de errores no capturados
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // La aplicación continúa ejecutándose
+  // La aplicación continúa ejecutándose, pero en producción podrías querer cerrarla
+  // Si es crítico, puedes terminar: process.exit(1);
 });
 
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
-  // La aplicación continúa ejecutándose
+  // La aplicación continúa ejecutándose, pero en producción podrías querer cerrarla
+  // Si es crítico, puedes terminar: process.exit(1);
 });
 
 module.exports = app;
