@@ -1,156 +1,126 @@
 // src/services/cardService.ts
-import { api } from './api';
+import axios from 'axios';
+import { API_URL } from '../config';
 
-interface Card {
+// Interfaces
+export interface Card {
   id: string;
+  name: string;
   uid: string;
-  status: 'active' | 'inactive';
+  isActive: boolean;
   businessName?: string;
-  googlePlaceId?: string;
-  activationDate?: string;
-  userId: string;
+  googleReviewLink?: string;
   totalScans: number;
-  totalReviews: number;
-  reviewUrl?: string;
+  lastScan?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface CardActivationData {
-  googlePlaceId: string;
-  businessName: string;
+export interface CardStats {
+  dailyStats: {
+    date: string;
+    scans: number;
+    reviews: number;
+  }[];
+  weeklyStats: {
+    week: string;
+    scans: number;
+    reviews: number;
+  }[];
+  totalScans: number;
+  totalReviews: number;
+  conversionRate: number;
 }
 
-interface CardAnalytics {
-  labels: string[];
-  scans: number[];
-  reviews: number[];
-  conversionRate: number[];
-}
-
-export const cardService = {
-  // Obtener todas las tarjetas del usuario
-  getUserCards: async (): Promise<Card[]> => {
-    try {
-      const response = await api.get('/cards');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching user cards:', error);
-      throw error;
+// Obtener todas las tarjetas del usuario
+export const getUserCards = async (): Promise<Card[]> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`${API_URL}/nfc/cards`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  },
-
-  // Obtener detalles de una tarjeta
-  getCardDetails: async (cardId: string): Promise<Card> => {
-    try {
-      const response = await api.get(`/cards/${cardId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching card details:', error);
-      throw error;
-    }
-  },
-
-  // Activar una tarjeta
-  activateCard: async (cardId: string, data: CardActivationData): Promise<Card> => {
-    try {
-      const response = await api.post(`/cards/${cardId}/activate`, data);
-      return response.data;
-    } catch (error) {
-      console.error('Error activating card:', error);
-      throw error;
-    }
-  },
-
-  // Actualizar una tarjeta
-  updateCard: async (cardId: string, data: Partial<Card>): Promise<Card> => {
-    try {
-      const response = await api.put(`/cards/${cardId}`, data);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating card:', error);
-      throw error;
-    }
-  },
-
-  // Validar un Place ID de Google
-  validateGooglePlaceId: async (placeId: string): Promise<boolean> => {
-    try {
-      const response = await api.post('/cards/validate-place-id', { placeId });
-      return response.data.valid;
-    } catch (error) {
-      console.error('Error validating Google Place ID:', error);
-      return false;
-    }
-  },
-
-  // Obtener análisis de una tarjeta
-  getCardAnalytics: async (cardId: string, timeframe: string): Promise<CardAnalytics> => {
-    try {
-      const response = await api.get(`/cards/${cardId}/analytics`, {
-        params: { timeframe }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching card analytics:', error);
-      throw error;
-    }
-  },
-
-  // Para administradores: obtener todas las tarjetas
-  getAllCards: async (filters: {
-    regionId?: string;
-    status?: 'active' | 'inactive' | 'all';
-    page?: number;
-    limit?: number;
-    search?: string;
-  } = {}): Promise<{ cards: Card[]; total: number; pages: number }> => {
-    try {
-      const response = await api.get('/admin/cards', { params: filters });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching all cards:', error);
-      throw error;
-    }
-  },
-
-  // Para administradores: activar/desactivar tarjeta
-  toggleCardStatus: async (cardId: string, active: boolean): Promise<Card> => {
-    try {
-      const response = await api.patch(`/admin/cards/${cardId}/status`, {
-        active
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error toggling card status:', error);
-      throw error;
-    }
-  },
-
-  // Para administradores: asignar tarjeta a usuario
-  assignCardToUser: async (cardId: string, userId: string): Promise<Card> => {
-    try {
-      const response = await api.patch(`/admin/cards/${cardId}/assign`, {
-        userId
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error assigning card to user:', error);
-      throw error;
-    }
-  }
+  });
+  return response.data.data;
 };
 
-// Export individual functions for direct import
-export const updateCard = cardService.updateCard;
-export const getUserCards = cardService.getUserCards;
-export const getCardDetails = cardService.getCardDetails;
-export const activateCard = cardService.activateCard;
-export const validateGooglePlaceId = cardService.validateGooglePlaceId;
-export const getCardAnalytics = cardService.getCardAnalytics;
-export const getAllCards = cardService.getAllCards;
-export const toggleCardStatus = cardService.toggleCardStatus;
-export const assignCardToUser = cardService.assignCardToUser;
+// Obtener una tarjeta específica
+export const getCardById = async (id: string): Promise<Card> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`${API_URL}/nfc/cards/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.data;
+};
 
-// Re-export types
-export type { Card, CardActivationData, CardAnalytics };
+// Crear una nueva tarjeta
+export const createCard = async (cardData: Partial<Card>): Promise<Card> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.post(`${API_URL}/nfc/cards`, cardData, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.data;
+};
+
+// Actualizar una tarjeta
+export const updateCard = async (id: string, cardData: Partial<Card>): Promise<Card> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.put(`${API_URL}/nfc/cards/${id}`, cardData, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.data;
+};
+
+// Eliminar una tarjeta
+export const deleteCard = async (id: string): Promise<boolean> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.delete(`${API_URL}/nfc/cards/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.success;
+};
+
+// Obtener estadísticas de una tarjeta
+export const getCardStats = async (id: string): Promise<CardStats> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`${API_URL}/nfc/cards/${id}/stats`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.data;
+};
+
+// Obtener URL del QR para una tarjeta
+export const getCardQRUrl = (uid: string): string => {
+  return `${API_URL}/nfc/redirect/${uid}`;
+};
+
+// Exportar como objeto nombrado cardService
+export const cardService = {
+  getUserCards,
+  getCardById,
+  createCard,
+  updateCard,
+  deleteCard,
+  getCardStats,
+  getCardQRUrl
+};
+
+// También mantener la exportación por defecto para compatibilidad
+export default {
+  getUserCards,
+  getCardById,
+  createCard,
+  updateCard,
+  deleteCard,
+  getCardStats,
+  getCardQRUrl
+};

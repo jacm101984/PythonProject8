@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 
 // Create base API instance
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3300/api';
+const IS_DEV = import.meta.env.DEV;
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -11,6 +12,18 @@ export const api = axios.create({
   },
   timeout: 15000, // 15 seconds timeout
 });
+
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Response interceptor for handling errors
 api.interceptors.response.use(
@@ -58,6 +71,13 @@ api.interceptors.response.use(
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
+    }
+
+    // Handle 404 errors differently in development mode
+    if (IS_DEV && error.response?.status === 404) {
+      console.warn(`API Endpoint not found: ${originalRequest.url}. This is normal during development if the backend isn't fully implemented.`);
+      // Don't show toast for 404 errors in development
+      return Promise.reject(error);
     }
 
     // Handle other error cases with a toast notification
@@ -173,6 +193,46 @@ export const apiService = {
       api.post(`/cards/${id}/transfer`, { newOwnerId }),
   },
 
+  // Subscription related endpoints
+  subscriptions: {
+    getPlans: () =>
+      api.get('/subscriptions/plans'),
+
+    getCurrentSubscription: () => {
+      // In development, return mock data if backend isn't ready
+      if (IS_DEV) {
+        try {
+          return api.get('/subscriptions/current');
+        } catch (error) {
+          console.warn('Using mock subscription data for development');
+          // Return null to indicate no active subscription
+          return Promise.resolve({ data: { data: null } });
+        }
+      }
+      return api.get('/subscriptions/current');
+    },
+
+    createSubscription: (data: {
+      planId: string,
+      paymentMethod: string,
+      paymentData?: any
+    }) => api.post('/subscriptions', data),
+
+    cancelSubscription: (subscriptionId: string) =>
+      api.put(`/subscriptions/${subscriptionId}/cancel`),
+
+    updateAutoRenew: (subscriptionId: string, autoRenew: boolean) =>
+      api.put(`/subscriptions/${subscriptionId}/auto-renew`, { autoRenew }),
+
+    createSubscriptionOrder: (data: {
+      planId: string,
+      method: string
+    }) => api.post('/subscriptions/order', data),
+
+    completeSubscription: (orderId: string) =>
+      api.post(`/subscriptions/order/${orderId}/complete`),
+  },
+
   // Orders related endpoints
   orders: {
     getAll: (params?: { page?: number, limit?: number, status?: string }) =>
@@ -261,7 +321,14 @@ export const apiService = {
   }
 };
 
-// Exporting checkpoint service for direct import
+// Exporting individual services for direct import
+export const authService = apiService.auth;
+export const userService = apiService.users;
+export const cardService = apiService.cards;
+export const orderService = apiService.orders;
+export const promoterService = apiService.promoters;
+export const adminService = apiService.admin;
 export const checkoutService = apiService.checkout;
+export const subscriptionService = apiService.subscriptions;
 
 export default api;

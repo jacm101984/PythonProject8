@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { cardService } from '../../../services/cardService';
-import QRCode from 'qrcode.react'; // Necesitas instalar esta dependencia
+import QRCode from 'react-qr-code';; // Necesitas instalar esta dependencia
 
 interface CardDetails {
   id: string;

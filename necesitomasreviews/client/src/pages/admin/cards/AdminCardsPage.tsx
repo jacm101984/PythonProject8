@@ -1,6 +1,6 @@
 // src/pages/AdminCardsPage.tsx
 import React, { useState, useEffect } from 'react';
-import { FaCreditCard, FaSearch, FaFilter, FaPlus, FaEdit, FaTrash, FaQrCode, FaLink } from 'react-icons/fa';
+import { FaCreditCard, FaSearch, FaFilter, FaPlus, FaEdit, FaTrash, FaQrcode, FaLink } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -275,10 +275,10 @@ const AdminCardsPage: React.FC = () => {
                         className="text-green-600 hover:text-green-900 mr-3"
                         title="Ver QR"
                       >
-                        <FaQrCode className="inline h-4 w-4" />
+                        <FaQrcode className="inline h-4 w-4" />
                       </Link>
                       {card.googleReviewLink && (
-
+                        <a
                           href={card.googleReviewLink}
                           target="_blank"
                           rel="noopener noreferrer"

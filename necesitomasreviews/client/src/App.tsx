@@ -2,13 +2,15 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { SubscriptionProvider } from './context/SubscriptionContext'; // Importamos el contexto de suscripción
 import {
   PublicRoute,
   ProtectedRoute,
   AdminRoute,
   SuperAdminRoute,
   RegionalAdminRoute,
-  PromoterRoute
+  PromoterRoute,
+  PremiumRoute // Importamos el nuevo componente PremiumRoute
 } from './components/auth/ProtectedRoutes';
 
 // Layouts
@@ -51,6 +53,14 @@ import OrdersPage from './pages/user/orders/OrdersPage';
 import OrderDetailPage from './pages/user/orders/OrderDetailPage';
 import NotificationSettingsPage from './pages/user/NotificationSettingsPage';
 
+// Páginas de suscripción
+import SubscriptionPlansPage from './pages/user/SubscriptionPlansPage';
+import SubscriptionCheckoutPage from './pages/user/SubscriptionCheckoutPage';
+import SubscriptionManagePage from './pages/user/SubscriptionManagePage';
+
+// Componentes UI para suscripciones
+import PremiumRequired from './components/ui/subscription/PremiumRequired';
+
 // Promoter Pages
 import PromoterPage from './pages/promoter/PromoterPage';
 import PromoterDashboardPage from './pages/user/DashboardPage';
@@ -82,116 +92,130 @@ import ReportsPage from './pages/admin/reports/ReportsPage';
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" />
-      <Routes>
-        {/* ===== RUTAS PÚBLICAS ===== */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
+      <SubscriptionProvider>
+        <Toaster position="top-right" />
+        <Routes>
+          {/* ===== RUTAS PÚBLICAS ===== */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
 
-          {/* Auth Routes */}
-          <Route element={<PublicRoute />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+            {/* Auth Routes */}
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+              <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+            </Route>
+
+            {/* Legal Pages */}
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+
+            {/* Checkout Routes */}
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/payment-success" element={<PaymentSuccessPage />} />
+            <Route path="/payment-failed" element={<PaymentFailedPage />} />
+            <Route path="/payment-cancel" element={<PaymentCancelPage />} />
+
+            {/* 404 Page */}
+            <Route path="/not-found" element={<NotFoundPage />} />
           </Route>
 
-          {/* Legal Pages */}
-          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
+          {/* ===== RUTAS DE USUARIO REGULAR ===== */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
 
-          {/* Checkout Routes */}
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/payment-success" element={<PaymentSuccessPage />} />
-          <Route path="/payment-failed" element={<PaymentFailedPage />} />
-          <Route path="/payment-cancel" element={<PaymentCancelPage />} />
+              {/* Cards */}
+              <Route path="/dashboard/cards" element={<CardsPage />} />
+              <Route path="/dashboard/cards/:cardId" element={<CardDetailPage />} />
+              <Route path="/dashboard/cards/details/:cardId" element={<CardDetailsPage />} />
+              <Route path="/dashboard/cards/activate" element={<CardActivationPage />} />
+              <Route path="/dashboard/cards/form" element={<CardFormPage />} />
+              <Route path="/dashboard/cards/form/:cardId" element={<CardFormPage />} />
+              <Route path="/dashboard/cards/qr/:cardId" element={<CardQRPage />} />
 
-          {/* 404 Page */}
-          <Route path="/not-found" element={<NotFoundPage />} />
-        </Route>
+              {/* Rutas premium para estadísticas */}
+              <Route element={<PremiumRoute />}>
+                <Route path="/dashboard/cards/stats" element={<CardStatsPage />} />
+              </Route>
 
-        {/* ===== RUTAS DE USUARIO REGULAR ===== */}
-        <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
+              {/* Ruta alternativa para mostrar el componente PremiumRequired */}
+              <Route path="/dashboard/premium-required" element={<PremiumRequired />} />
 
-            {/* Cards */}
-            <Route path="/dashboard/cards" element={<CardsPage />} />
-            <Route path="/dashboard/cards/:cardId" element={<CardDetailPage />} />
-            <Route path="/dashboard/cards/details/:cardId" element={<CardDetailsPage />} />
-            <Route path="/dashboard/cards/activate" element={<CardActivationPage />} />
-            <Route path="/dashboard/cards/form" element={<CardFormPage />} />
-            <Route path="/dashboard/cards/form/:cardId" element={<CardFormPage />} />
-            <Route path="/dashboard/cards/qr/:cardId" element={<CardQRPage />} />
-            <Route path="/dashboard/cards/stats" element={<CardStatsPage />} />
+              {/* Orders */}
+              <Route path="/dashboard/orders" element={<OrdersPage />} />
+              <Route path="/dashboard/orders/:orderId" element={<OrderDetailPage />} />
 
-            {/* Orders */}
-            <Route path="/dashboard/orders" element={<OrdersPage />} />
-            <Route path="/dashboard/orders/:orderId" element={<OrderDetailPage />} />
+              {/* User Profile & Settings */}
+              <Route path="/dashboard/profile" element={<ProfilePage />} />
+              <Route path="/dashboard/settings" element={<NotificationSettingsPage />} />
+              <Route path="/dashboard/help" element={<NotFoundPage />} />
 
-            {/* User Profile & Settings */}
-            <Route path="/dashboard/profile" element={<ProfilePage />} />
-            <Route path="/dashboard/settings" element={<NotificationSettingsPage />} />
-            <Route path="/dashboard/help" element={<NotFoundPage />} />
-          </Route>
-        </Route>
-
-        {/* ===== RUTAS DE PROMOTOR ===== */}
-        <Route element={<PromoterRoute />}>
-          <Route element={<DashboardLayout />}>
-            <Route path="/promoter/dashboard" element={<PromoterDashboardPage />} />
-            <Route path="/dashboard/promoter" element={<PromoterPage />} />
-            <Route path="/promoter/codes" element={<PromoCodePage />} />
-            <Route path="/promoter/codes/new" element={<PromoterCodeFormPage />} />
-            <Route path="/promoter/codes/:codeId" element={<PromoterCodeFormPage />} />
-            <Route path="/promoter/promo-codes" element={<PromoCodePage />} />
-            <Route path="/promoter/commissions" element={<CommissionsPage />} />
-            <Route path="/promoter/metrics" element={<MetricAlertsPage />} />
-          </Route>
-        </Route>
-
-        {/* ===== RUTAS DE ADMINISTRADOR ===== */}
-        <Route element={<AdminRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-
-            {/* Users Management */}
-            <Route path="/admin/users" element={<AdminUsersPage />} />
-            <Route path="/admin/users/new" element={<AdminCreateUserPage />} />
-            <Route path="/admin/users/:userId" element={<AdminEditUserPage />} />
-
-            {/* Cards Management */}
-            <Route path="/admin/cards" element={<AdminCardsPage />} />
-            <Route path="/admin/cards/:cardId" element={<AdminCardFormPage />} />
-            <Route path="/admin/cards/qr/:cardId" element={<AdminCardQRPage />} />
-
-            {/* Orders Management */}
-            <Route path="/admin/orders" element={<AdminOrdersPage />} />
-            <Route path="/admin/orders/:orderId" element={<AdminOrderDetailPage />} />
-
-            {/* Promoters Management */}
-            <Route path="/admin/promoters" element={<AdminPromotersPage />} />
-
-            {/* Reports */}
-            <Route path="/admin/reports" element={<AdminReportsPage />} />
-            <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
-
-            {/* Super Admin Only Routes */}
-            <Route element={<SuperAdminRoute />}>
-              <Route path="/admin/regions" element={<AdminRegionsPage />} />
-              <Route path="/admin/regions/new" element={<AdminRegionFormPage />} />
-              <Route path="/admin/regions/:regionId" element={<AdminRegionFormPage />} />
-              <Route path="/admin/reports/regional" element={<RegionalReportsPage />} />
+              {/* Subscription Routes */}
+              <Route path="/dashboard/subscription-plans" element={<SubscriptionPlansPage />} />
+              <Route path="/dashboard/subscription-checkout" element={<SubscriptionCheckoutPage />} />
+              <Route path="/dashboard/subscription-manage" element={<SubscriptionManagePage />} />
             </Route>
           </Route>
-        </Route>
 
-        {/* Fallback route */}
-        <Route path="*" element={<Navigate to="/not-found" replace />} />
-      </Routes>
+          {/* ===== RUTAS DE PROMOTOR ===== */}
+          <Route element={<PromoterRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/promoter/dashboard" element={<PromoterDashboardPage />} />
+              <Route path="/dashboard/promoter" element={<PromoterPage />} />
+              <Route path="/promoter/codes" element={<PromoCodePage />} />
+              <Route path="/promoter/codes/new" element={<PromoterCodeFormPage />} />
+              <Route path="/promoter/codes/:codeId" element={<PromoterCodeFormPage />} />
+              <Route path="/promoter/promo-codes" element={<PromoCodePage />} />
+              <Route path="/promoter/commissions" element={<CommissionsPage />} />
+              <Route path="/promoter/metrics" element={<MetricAlertsPage />} />
+            </Route>
+          </Route>
+
+          {/* ===== RUTAS DE ADMINISTRADOR ===== */}
+          <Route element={<AdminRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+
+              {/* Users Management */}
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/users/new" element={<AdminCreateUserPage />} />
+              <Route path="/admin/users/:userId" element={<AdminEditUserPage />} />
+
+              {/* Cards Management */}
+              <Route path="/admin/cards" element={<AdminCardsPage />} />
+              <Route path="/admin/cards/:cardId" element={<AdminCardFormPage />} />
+              <Route path="/admin/cards/qr/:cardId" element={<AdminCardQRPage />} />
+
+              {/* Orders Management */}
+              <Route path="/admin/orders" element={<AdminOrdersPage />} />
+              <Route path="/admin/orders/:orderId" element={<AdminOrderDetailPage />} />
+
+              {/* Promoters Management */}
+              <Route path="/admin/promoters" element={<AdminPromotersPage />} />
+
+              {/* Reports */}
+              <Route path="/admin/reports" element={<AdminReportsPage />} />
+              <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+
+              {/* Super Admin Only Routes */}
+              <Route element={<SuperAdminRoute />}>
+                <Route path="/admin/regions" element={<AdminRegionsPage />} />
+                <Route path="/admin/regions/new" element={<AdminRegionFormPage />} />
+                <Route path="/admin/regions/:regionId" element={<AdminRegionFormPage />} />
+                <Route path="/admin/reports/regional" element={<RegionalReportsPage />} />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/not-found" replace />} />
+        </Routes>
+      </SubscriptionProvider>
     </AuthProvider>
   );
 }

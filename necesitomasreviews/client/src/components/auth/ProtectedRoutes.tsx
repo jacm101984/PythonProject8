@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '../../context/AuthContext';
+import { useSubscription } from '../../context/SubscriptionContext';
 import Loading from '../ui/Loading';
 
 // Base protected route that checks for authentication
@@ -142,5 +143,35 @@ export const PublicRoute: React.FC<{ redirectTo?: string }> = ({ redirectTo = '/
   }
 
   // User is not authenticated, render the child routes
+  return <Outlet />;
+};
+
+// Route that only allows users with premium subscription
+export const PremiumRoute: React.FC = () => {
+  const { user, loading } = useAuth();
+  const { hasPremiumSubscription, loading: subscriptionLoading } = useSubscription();
+  const location = useLocation();
+
+  // Show loading spinner while checking authentication and subscription
+  if (loading || subscriptionLoading) {
+    return <Loading />;
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Redirect to premium required page if user doesn't have a premium subscription
+  // Admins bypass the premium check
+  const isAdmin = user.role === UserRole.SUPER_ADMIN ||
+                  user.role === UserRole.REGIONAL_ADMIN ||
+                  user.role === UserRole.ADMIN;
+
+  if (!hasPremiumSubscription && !isAdmin) {
+    return <Navigate to="/dashboard/premium-required" state={{ from: location }} replace />;
+  }
+
+  // User has a premium subscription or is an admin, render the child routes
   return <Outlet />;
 };

@@ -438,6 +438,165 @@ const HomePage = () => {
   </div>
 </section>
 
+   {/* Subscription Plans Section */}
+<section id="suscripciones" className="py-20 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="text-center max-w-3xl mx-auto mb-16">
+      <h2 className="text-4xl font-bold mb-4">Planes de Suscripción Premium</h2>
+      <p className="text-xl text-gray-600">Potencia tu experiencia con funciones avanzadas y análisis detallados de tus tarjetas NFC.</p>
+    </div>
+
+    <div className="grid md:grid-cols-3 gap-8">
+      {/* Plan Básico (Gratuito) */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="p-8">
+          <h3 className="text-2xl font-bold text-center mb-2">Básico</h3>
+          <p className="text-center text-gray-500 mb-6">Incluido con tus tarjetas</p>
+          <div className="text-center mb-6">
+            <span className="text-5xl font-bold">$0</span>
+            <span className="text-gray-600 ml-1">USD</span>
+            <p className="text-sm text-gray-500 mt-1">Para siempre</p>
+          </div>
+          <div className="bg-gray-50 -mx-8 px-8 py-4 mb-8">
+            <p className="text-center font-semibold">Funciones incluidas:</p>
+          </div>
+          <ul className="space-y-4 mb-8">
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Estadísticas básicas</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Dashboard básico</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Soporte por email</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-red mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              <span className="text-gray-400">Estadísticas avanzadas</span>
+            </li>
+          </ul>
+          <div className="block text-center py-3 px-4 bg-gray-100 text-gray-700 rounded-lg transition-colors duration-300 font-medium">
+            Incluido
+          </div>
+        </div>
+      </div>
+
+      {/* Plan Premium Mensual (Destacado) */}
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden border-2 border-google-blue relative transform hover:-translate-y-2 transition-all duration-300">
+        <div className="absolute top-0 right-0 bg-google-blue text-xs text-white px-3 py-1 font-bold tracking-wider rounded-bl">RECOMENDADO</div>
+        <div className="p-8">
+          <h3 className="text-2xl font-bold text-center mb-2">Premium</h3>
+          <p className="text-center text-gray-500 mb-6">Análisis avanzado mensual</p>
+          <div className="text-center mb-6">
+            <span className="text-5xl font-bold">$19</span>
+            <span className="text-gray-600 ml-1">USD</span>
+            <p className="text-sm text-gray-500 mt-1">por mes</p>
+          </div>
+          <div className="bg-blue-50 -mx-8 px-8 py-4 mb-8">
+            <p className="text-center font-semibold">Todo lo básico más:</p>
+          </div>
+          <ul className="space-y-4 mb-8">
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-blue mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Estadísticas avanzadas</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-blue mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Exportación de reportes</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-blue mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Alertas personalizadas</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-blue mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Soporte prioritario</span>
+            </li>
+          </ul>
+          <Link to="/dashboard/subscription-plans" className="block text-center py-3 px-4 bg-google-blue text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 font-medium">
+            Comenzar ahora
+          </Link>
+        </div>
+      </div>
+
+      {/* Plan Premium Anual */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="p-8">
+          <h3 className="text-2xl font-bold text-center mb-2">Premium Anual</h3>
+          <p className="text-center text-gray-500 mb-6">Mayor ahorro</p>
+          <div className="text-center mb-6">
+            <span className="text-5xl font-bold">$199</span>
+            <span className="text-gray-600 ml-1">USD</span>
+            <p className="text-sm text-gray-500 mt-1">por año</p>
+            <p className="text-sm text-google-red font-medium mt-1">Ahorra 2 meses</p>
+          </div>
+          <div className="bg-gray-50 -mx-8 px-8 py-4 mb-8">
+            <p className="text-center font-semibold">Todo lo del plan Premium más:</p>
+          </div>
+          <ul className="space-y-4 mb-8">
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Análisis de tendencias anuales</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Reportes comparativos</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Ahorro de 2 meses</span>
+            </li>
+            <li className="flex items-start">
+              <svg className="w-5 h-5 text-google-green mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Soporte telefónico</span>
+            </li>
+          </ul>
+          <Link to="/dashboard/subscription-plans" className="block text-center py-3 px-4 bg-google-green text-white rounded-lg hover:bg-green-600 transition-colors duration-300 font-medium">
+            Comenzar ahora
+          </Link>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-12 text-center max-w-2xl mx-auto">
+      <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+        <h4 className="text-xl font-semibold mb-4">¿Por qué suscribirte al plan Premium?</h4>
+        <p className="text-gray-600 mb-6">Desbloquea todo el potencial de tus tarjetas NFC con estadísticas detalladas, análisis profundo y herramientas avanzadas que te ayudarán a entender mejor el comportamiento de tus clientes y maximizar tus reseñas.</p>
+        <Link to="/dashboard" className="text-google-blue hover:underline font-medium">
+          Ver todas las características →
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
+
       {/* Testimonials Section */}
 <section className="py-20 bg-gray-50">
   <div className="container mx-auto px-4">

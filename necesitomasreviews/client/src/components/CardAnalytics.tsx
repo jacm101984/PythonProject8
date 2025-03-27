@@ -1,7 +1,7 @@
 // src/components/CardAnalytics.tsx
 import React, { useState, useEffect } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
-import { cardService } from '../services/cardService';
+import { getUserCards, getCardById } from '../services/cardService';
 
 interface CardAnalyticsProps {
   cardId: string;

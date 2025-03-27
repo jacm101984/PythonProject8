@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { FaCreditCard, FaUser, FaBuilding, FaLink, FaToggleOn, FaToggleOff, FaQrCode } from 'react-icons/fa';
+import { FaCreditCard, FaUser, FaBuilding, FaLink, FaToggleOn, FaToggleOff, FaQrcode } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { api } from '../../../services/api';
 
